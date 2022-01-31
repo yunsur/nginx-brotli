@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       ngx_stable_version_number:
-        description: 'literal'
+        description: 'ngx_stable_version_number'
         required: true
       module_version_number:
-        description: 'literal'
+        description: 'module_version_number'
         required: true
 jobs:
   build:
