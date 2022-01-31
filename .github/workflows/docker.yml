@@ -68,3 +68,4 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:ngx-${{ env.NGX_VERSION_NUMBER }}-module-${{ env.MODULE_VERSION_NUMBER }}-${{ env.TARGET }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:ngx-stable-module-${{ env.MODULE_VERSION_NUMBER }}-${{ env.TARGET }}
