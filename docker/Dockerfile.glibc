@@ -1,0 +1,33 @@
+ARG NGX_VER=stable
+FROM nginx:${NGX_VER} as base
+
+WORKDIR /usr/local/src
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN set -ex \
+    &&  apt-get update --yes \
+    &&  apt-get install --yes build-essential \
+            git \
+            libpcre3-dev \
+            zlib1g-dev \
+            python3 \
+            python3-pip \
+    &&  pip3 install lastversion
+
+RUN set -xe \
+    &&  git clone https://github.com/google/ngx_brotli.git ngx_brotli \
+    &&  cd /usr/local/src/ngx_brotli && git submodule update --init --depth 1 && cd - \
+    &&  lastversion --download="nginx.tar.gz" --major stable https://nginx.org \
+    &&  mkdir nginx && tar -zxf "nginx.tar.gz" -C nginx --strip-components=1 \
+    &&  cd nginx \
+    &&  ./configure \
+        --add-dynamic-module=/usr/local/src/ngx_brotli \
+        --with-compat \
+        --with-cc-opt='-fstack-protector-strong' \
+    &&  make modules -j$(nproc)
+
+
+FROM scratch
+COPY --from=base /usr/local/src/nginx/objs/ngx_http_brotli_filter_module.so /modules/ngx_http_brotli_filter_module.so
+COPY --from=base /usr/local/src/nginx/objs/ngx_http_brotli_static_module.so /modules/ngx_http_brotli_static_module.so
